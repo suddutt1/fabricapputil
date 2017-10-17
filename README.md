@@ -1,4 +1,4 @@
-# Various query method of Hyperledger Fabric 
+# Various query methods of Hyperledger Fabric  for channel analytics purpose
 
 This document describes the various query method available to know the following information about a block chain network.
 
