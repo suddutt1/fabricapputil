@@ -9,7 +9,20 @@ This document describes the various query method available to know the following
 ## Details of each query method
 
 ### 1. Block Info
+To retrive the ledger details with the top/latest block use the following method of a channel instance. 
+( Please refer to the GenerateStatistics in the appclient.go file)
+
+    ```go
     
+    import (
+        fab "github.com/hyperledger/fabric-sdk-go/api/apifabclient"
+    )
+
+    var channel fab.Channel 
+    ...
+    blockInfo, err := channel.QueryInfo()
+    ```
+        
     
 ### 2. Individual block details
 
