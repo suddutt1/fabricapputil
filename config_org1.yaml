@@ -1,0 +1,259 @@
+name: "cisco-network"
+x-type: "hlfv1"
+x-loggingLevel: debug
+description: "The network to be in if you want to stay in the global trade business"
+version: 1.0.0
+client:
+  # Which organization does this application instance belong to? The value must be the name of an org
+  # defined under "organizations"
+  organization: Org1
+  logging:
+    level: debug 
+  # set connection timeouts for the peer and orderer for the client
+  peer:
+    timeout:
+      connection: 3000s
+      queryResponse: 3000s
+      executeTxResponse: 3000s
+  eventService:
+    timeout:
+      connection: 3000s
+      registrationResponse: 3000s
+  orderer:
+    timeout:
+      connection: 3000s
+      response: 5000s
+     
+
+  # Needed to load users crypto keys and certs.
+  cryptoconfig:
+    path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config
+
+  # enable/disable tls for the client
+  tls:
+    enabled: true
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # [Optional]. Not used by Go SDK. Others SDKs may use it if using an alternative impl
+    # Could be used if SDK would require an object for properties like url, db name, etc.
+    path: "/tmp/hfc-kvs"
+
+    # [Optional]. Specific to the CryptoSuite implementation used by GO SDK. Software-based implementations
+    # requiring a key store. PKCS#11 based implementations does not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: /tmp/msp
+
+    # [Optional]. Specific to Composer environment. Not used by SDK Go.
+    wallet: wallet-name
+
+   # BCCSP config for the client. Used by GO SDK.
+  BCCSP:
+    security:
+     enabled: true
+     default:
+      provider: "SW"
+     hashAlgorithm: "SHA2"
+     softVerify: true
+     ephemeral: false
+     level: 256
+
+#
+# [Optional]. But most apps would have this section so that channel objects can be constructed
+# based on the content below. If an app is creating channels, then it likely will not need this
+# section.
+#
+channels:
+  # name of the channel
+  mychannel1:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("org1" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    orderers:
+      - orderer0.example.com
+    # Required. list of peers from participating orgs
+    peers:
+      peer0.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.org1.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer0.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+      peer1.org2.example.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true    
+    chaincodes:
+      # the format follows the "canonical name" of chaincodes by fabric code
+      - example02:v1
+      - marbles:1.0
+
+#
+# list of participating organizations in this network
+#
+organizations:
+  Org1:
+    mspid: Org1MSP
+
+    # Needed to load users crypto keys and certs for this org (absolute path or relative to global crypto path, DEV mode)
+    cryptoPath:  /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/peerOrganizations/org1.example.com/users/{userName}@org1.example.com/msp
+
+    peers:
+      - peer0.org1.example.com
+      - peer1.org1.example.com
+
+    certificateAuthorities:
+      - ca-org1
+
+    adminPrivateKey:
+      pem: "-----BEGIN PRIVATE KEY----- <etc>"
+    signedCert:
+      path: "/tmp/somepath/signed-cert.pem"
+  Org2:
+    mspid: Org2MSP
+    cryptoPath:  peerOrgani/home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/zations/org2.example.com/users/{userName}@org2.example.com/msp
+
+    peers:
+      - peer0.org2.example.com
+      - peer1.org2.example.com
+
+    certificateAuthorities:
+      - ca-org2
+
+  # Orderer Org name
+  ordererorg:
+      # Membership Service Provider ID for this organization
+      mspID: "OrdererOrg"
+
+      # Needed to load users crypto keys and certs for this org (absolute path or relative to global crypto path, DEV mode)
+      cryptoPath: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/ordererOrganizations/example.com/users/{userName}@example.com/msp
+
+
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+  orderer0.example.com:
+    url: grpcs://orderer0.example.com:7050
+
+    # these are standard properties defined by the gRPC library
+    # they will be passed in as-is to gRPC client constructor
+    grpcOptions:
+      ssl-target-name-override: orderer0.example.com
+      grpc-max-send-message-length: 15
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/ordererOrganizations/example.com/tlsca/tlsca.example.com-cert.pem
+
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+  peer0.org1.example.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer0.org1.example.com:7051
+
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpcs://peer0.org1.example.com:7053
+
+    grpcOptions:
+      ssl-target-name-override: peer0.org1.example.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+  peer1.org1.example.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://peer1.org1.example.com:8051
+
+    # this URL is used to connect the EventHub and registering event listeners
+    eventUrl: grpcs://peer1.org1.example.com:8053
+
+    grpcOptions:
+      ssl-target-name-override: peer1.org1.example.com
+      grpc.http2.keepalive_time: 15
+
+    tlsCACerts:
+      # Certificate location absolute path
+      path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/peerOrganizations/org1.example.com/tlsca/tlsca.org1.example.com-cert.pem
+  peer0.org2.example.com:
+    url: grpcs://peer0.org2.example.com:9051
+    eventUrl: grpcs://peer0.org2.example.com:9053
+    grpcOptions:
+      ssl-target-name-override: peer0.org2.example.com
+    tlsCACerts:
+      path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+  peer1.org2.example.com:
+    url: grpcs://peer1.org2.example.com:10051
+    eventUrl: grpcs://peer1.org2.example.com:10053
+    grpcOptions:
+      ssl-target-name-override: peer1.org2.example.com
+    tlsCACerts:
+      path: /home/suddutt1/fabric_networks_v1/cisco_net/artifacts/crypto-config/peerOrganizations/org2.example.com/tlsca/tlsca.org2.example.com-cert.pem
+
+#
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+  ca-org1:
+    url: https://ca_peerOrg1:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      # Comma-Separated list of paths
+      path: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/ca_root.pem
+      # Client key and cert for SSL handshake with Fabric CA
+      client:
+       keyfile: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/client/client_fabric_client-key.pem
+       certfile: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/client/client_fabric_client.pem
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    # [Optional] The optional name of the CA.
+    caName: ca-org1
+  ca-org2:
+    url: https://ca_peerOrg2:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: true
+    tlsCACerts:
+      # Comma-Separated list of paths
+      path: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/ca_root.pem
+      # Client key and cert for SSL handshake with Fabric CA
+      client:
+       keyfile: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/client/client_fabric_client-key.pem
+       certfile: $GOPATH/src/github.com/hyperledger/fabric-sdk-go/test/fixtures/tls/fabricca/certs/client/client_fabric_client.pem
+
+     # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+     # needed to enroll and invoke new users.
+    registrar:
+      enrollId: admin
+      enrollSecret: adminpw
+    # [Optional] The optional name of the CA.
+    caName: ca-org2
